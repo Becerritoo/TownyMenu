@@ -83,15 +83,14 @@ public class GeneralSettingsMenu extends MenuHandler {
 				})
 				.buildAndSet(player,this);
 
-		MenuItemBuilder.of("town_set_board_button")
-				.name(Localization.TownMenu.GeneralSettingsMenu.SET_BOARD)
-				.lore(Localization.TownMenu.GeneralSettingsMenu.SET_BOARD_LORE)
-				.onClick(click -> {
-					System.out.println("[DEBUG] Town board button clicked by " + player.getName());
-					player.closeInventory();
-					if (town.getMayor().getName().equals(player.getName())) {
-						new TownBoardPrompt(player, town).show(player);
-					} else {
+			MenuItemBuilder.of("town_set_board_button")
+					.name(Localization.TownMenu.GeneralSettingsMenu.SET_BOARD)
+					.lore(Localization.TownMenu.GeneralSettingsMenu.SET_BOARD_LORE)
+					.onClick(click -> {
+						player.closeInventory();
+						if (town.getMayor().getName().equals(player.getName())) {
+							new TownBoardPrompt(player, town).show(player);
+						} else {
 						MessageUtils.send(player, Localization.Error.CANNOT_CHANGE_BOARD);
 					}
 				})

@@ -2,6 +2,7 @@ package me.cobrex.townymenu.settings;
 
 import me.cobrex.townymenu.TownyMenuPlugin;
 import me.cobrex.townymenu.utils.MessageFormatter;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
@@ -12,6 +13,8 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Localization {
 
@@ -27,40 +30,37 @@ public class Localization {
 		File langFolder = new File(plugin.getDataFolder(), "localization");
 		if (!langFolder.exists()) langFolder.mkdirs();
 
-		if (!langFile.exists()) {
-			try (InputStream in = plugin.getResource("localization/messages_" + fileName)) {
-				if (in != null) {
-					Files.copy(in, langFile.toPath());
-				} else {
-					System.err.println("[TownyMenu] Missing language file inside jar: localization/messages_" + fileName);
+			if (!langFile.exists()) {
+				try (InputStream in = plugin.getResource("localization/messages_" + fileName)) {
+					if (in != null) {
+						Files.copy(in, langFile.toPath());
+					} else {
+						getLogger().warning("Missing language file inside jar: localization/messages_" + fileName);
+					}
+				} catch (IOException e) {
+					getLogger().log(Level.SEVERE, "Failed to copy default lang file for: " + fileName, e);
 				}
-			} catch (IOException e) {
-				System.err.println("[TownyMenu] Failed to copy default lang file for: " + fileName);
-				e.printStackTrace();
 			}
-		}
 
 		config = YamlConfiguration.loadConfiguration(langFile);
 
-		try (InputStream defaultLangStream = plugin.getResource("localization/messages_en.yml")) {
-			if (defaultLangStream != null) {
-				YamlConfiguration defaults = YamlConfiguration.loadConfiguration(new InputStreamReader(defaultLangStream, StandardCharsets.UTF_8));
-				config.setDefaults(defaults);
-				config.options().copyDefaults(true);
-			} else {
-				System.err.println("[TownyMenu] Could not find fallback localization/messages_en.yml inside jar.");
+			try (InputStream defaultLangStream = plugin.getResource("localization/messages_en.yml")) {
+				if (defaultLangStream != null) {
+					YamlConfiguration defaults = YamlConfiguration.loadConfiguration(new InputStreamReader(defaultLangStream, StandardCharsets.UTF_8));
+					config.setDefaults(defaults);
+					config.options().copyDefaults(true);
+				} else {
+					getLogger().warning("Could not find fallback localization/messages_en.yml inside jar.");
+				}
+			} catch (Exception e) {
+				getLogger().log(Level.SEVERE, "Error loading default lang file (messages_en.yml)", e);
 			}
-		} catch (Exception e) {
-			System.err.println("[TownyMenu] Error loading default lang file (messages_en.yml):");
-			e.printStackTrace();
-		}
 
-		try {
-			config.save(langFile);
-		} catch (IOException e) {
-			System.err.println("[TownyMenu] Failed to save completed lang file: " + fileName);
-			e.printStackTrace();
-		}
+			try {
+				config.save(langFile);
+			} catch (IOException e) {
+				getLogger().log(Level.SEVERE, "Failed to save completed lang file: " + fileName, e);
+			}
 
 		initAll(null);
 	}
@@ -70,8 +70,7 @@ public class Localization {
 			try {
 				config.save(langFile);
 			} catch (IOException e) {
-				System.err.println("[TownyMenu] Failed to save localization file: " + langFile.getName());
-				e.printStackTrace();
+				getLogger().log(Level.SEVERE, "Failed to save localization file: " + langFile.getName(), e);
 			}
 		}
 	}
@@ -89,9 +88,15 @@ public class Localization {
 			config = YamlConfiguration.loadConfiguration(fallbackStream);
 			initAll(null);
 		} catch (Exception ex) {
-			System.err.println("[TownyMenu] Failed to load fallback locale. Plugin may behave unpredictably.");
-			ex.printStackTrace();
+			getLogger().log(Level.SEVERE, "Failed to load fallback locale. Plugin may behave unpredictably.", ex);
 		}
+	}
+
+	private static Logger getLogger() {
+		if (TownyMenuPlugin.instance != null) {
+			return TownyMenuPlugin.instance.getLogger();
+		}
+		return Bukkit.getLogger();
 	}
 
 	private static void initAll(Player player) {

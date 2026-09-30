@@ -1,9 +1,20 @@
+# TownyMenu inventory protection fix
+
+This fork fixes menu item extraction after a denied action or a button error.
+It also protects menu inventories against drag and transfer actions. The fix
+applies to the shared menu system, including town, nation and plot menus.
+
+Based on [cobrex1/TownyMenu](https://github.com/cobrex1/TownyMenu) version 2.0.7.
+Patched version: `2.0.7-fix.1`. See [fix details and verification](FORK.md).
+
+Build with `mvn -B -ntp clean verify` (validated with JDK 21).
+
 # Author
 
 This was originally written by bennycio  
 https://github.com/bennycio/TownyMenu
 
-I have forked it added a lot, updated code and dependancies
+Cobrex maintains the upstream fork, with additional features, code updates and dependency updates.
 
 # Towny Menu
 

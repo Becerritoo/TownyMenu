@@ -1,9 +1,9 @@
-# TownyMenu — Jarochitoland
+# TownyMenu — Inventory protection fix
 
 Base: cobrex1/TownyMenu tag `2.0.7`, commit
 `5b494ac1e54f75bb928adcb51e5249f2a81fecde`.
-Branch: `jarochitoland/2.0.7-menu-security`.
-Version: `2.0.7-JL.1`. Original authorship and GPL-3.0 license retained.
+Branch: `fix/menu-item-extraction`.
+Version: `2.0.7-fix.1`. Original authorship and GPL-3.0 license retained.
 
 ## Inventory protection fix
 
@@ -25,10 +25,10 @@ Build: `mvn -B -ntp clean verify` (JDK 21 used).
 Tests cover access denial followed by another click, callback exceptions, all
 click types, bottom/outside clicks, drags, and unrelated inventories.
 
-## Deployment and in-game acceptance (pending)
+## In-game verification
 
-The production plugin has not been replaced. Test on a staging server with the
-production Towny/configuration first. As a non-admin, open `/tmenu`, select a
+Test on a staging server with the intended Towny version and configuration.
+As a non-admin, open `/tmenu`, select a
 bank/menu action that is denied, and then attempt to take the icon using normal
 clicks, shift, number keys, offhand swap, double click, drop and drag. No icon
 should leave the panel. Verify permitted buttons, navigation, reopening and

@@ -20,6 +20,10 @@ public class PlotPermMenu extends MenuHandler {
 	private final TownBlock townblock;
 
 	public PlotPermMenu(Player player, Resident resident) {
+		this(player, resident, TownyAPI.getInstance().getTownBlock(player));
+	}
+
+	public PlotPermMenu(Player player, Resident resident, TownBlock plot) {
 		super(
 				player,
 				MessageFormatter.format(Localization.TownMenu.PlayerPermissionsMenu.MENU_TITLE, player),
@@ -27,9 +31,9 @@ public class PlotPermMenu extends MenuHandler {
 		);
 		this.player = player;
 		this.resident = resident;
-		this.town = resident.getTownOrNull();
+		this.town = plot == null ? null : plot.getTownOrNull();
 		this.perm = town == null ? null : town.getPermissions();
-		this.townblock = TownyAPI.getInstance().getTownBlock(player);
+		this.townblock = plot;
 
 		setupMenu();
 	}
@@ -89,7 +93,7 @@ public class PlotPermMenu extends MenuHandler {
 							TownyPermission.PermLevel.RESIDENT,
 							TownyPermission.ActionType.BUILD);
 					TownyAPI.getInstance().getDataSource().saveTownBlock(townblock);
-					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident));
+					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident, townblock));
 				})
 				.buildAndSet(player,this);
 
@@ -115,7 +119,7 @@ public class PlotPermMenu extends MenuHandler {
 							TownyPermission.PermLevel.ALLY,
 							TownyPermission.ActionType.BUILD);
 					TownyAPI.getInstance().getDataSource().saveTownBlock(townblock);
-					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident));
+					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident, townblock));
 				})
 				.buildAndSet(player,this);
 
@@ -141,7 +145,7 @@ public class PlotPermMenu extends MenuHandler {
 							TownyPermission.PermLevel.NATION,
 							TownyPermission.ActionType.BUILD);
 					TownyAPI.getInstance().getDataSource().saveTownBlock(townblock);
-					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident));
+					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident, townblock));
 				})
 				.buildAndSet(player,this);
 
@@ -167,7 +171,7 @@ public class PlotPermMenu extends MenuHandler {
 							TownyPermission.PermLevel.OUTSIDER,
 							TownyPermission.ActionType.BUILD);
 					TownyAPI.getInstance().getDataSource().saveTownBlock(townblock);
-					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident));
+					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident, townblock));
 				})
 				.buildAndSet(player,this);
 
@@ -195,7 +199,7 @@ public class PlotPermMenu extends MenuHandler {
 							TownyPermission.PermLevel.RESIDENT,
 							TownyPermission.ActionType.DESTROY);
 					TownyAPI.getInstance().getDataSource().saveTownBlock(townblock);
-					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident));
+					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident, townblock));
 				})
 				.buildAndSet(player,this);
 
@@ -221,7 +225,7 @@ public class PlotPermMenu extends MenuHandler {
 							TownyPermission.PermLevel.NATION,
 							TownyPermission.ActionType.DESTROY);
 					TownyAPI.getInstance().getDataSource().saveTownBlock(townblock);
-					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident));
+					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident, townblock));
 				})
 				.buildAndSet(player,this);
 
@@ -247,7 +251,7 @@ public class PlotPermMenu extends MenuHandler {
 							TownyPermission.PermLevel.ALLY,
 							TownyPermission.ActionType.DESTROY);
 					TownyAPI.getInstance().getDataSource().saveTownBlock(townblock);
-					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident));
+					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident, townblock));
 				})
 				.buildAndSet(player,this);
 
@@ -273,7 +277,7 @@ public class PlotPermMenu extends MenuHandler {
 							TownyPermission.PermLevel.OUTSIDER,
 							TownyPermission.ActionType.DESTROY);
 					TownyAPI.getInstance().getDataSource().saveTownBlock(townblock);
-					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident));
+					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident, townblock));
 				})
 				.buildAndSet(player,this);
 
@@ -303,7 +307,7 @@ public class PlotPermMenu extends MenuHandler {
 							TownyPermission.ActionType.ITEM_USE
 					);
 					TownyAPI.getInstance().getDataSource().saveTownBlock(townblock);
-					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident));
+					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident, townblock));
 				})
 				.buildAndSet(player,this);
 
@@ -331,7 +335,7 @@ public class PlotPermMenu extends MenuHandler {
 							TownyPermission.ActionType.ITEM_USE
 					);
 					TownyAPI.getInstance().getDataSource().saveTownBlock(townblock);
-					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident));
+					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident, townblock));
 				})
 				.buildAndSet(player,this);
 
@@ -359,7 +363,7 @@ public class PlotPermMenu extends MenuHandler {
 							TownyPermission.ActionType.ITEM_USE
 					);
 					TownyAPI.getInstance().getDataSource().saveTownBlock(townblock);
-					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident));
+					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident, townblock));
 				})
 				.buildAndSet(player,this);
 
@@ -387,7 +391,7 @@ public class PlotPermMenu extends MenuHandler {
 							TownyPermission.ActionType.ITEM_USE
 					);
 					TownyAPI.getInstance().getDataSource().saveTownBlock(townblock);
-					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident));
+					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident, townblock));
 				})
 				.buildAndSet(player,this);
 
@@ -418,7 +422,7 @@ public class PlotPermMenu extends MenuHandler {
 							TownyPermission.ActionType.SWITCH
 					);
 					TownyAPI.getInstance().getDataSource().saveTownBlock(townblock);
-					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident));
+					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident, townblock));
 				})
 				.buildAndSet(player,this);
 
@@ -446,7 +450,7 @@ public class PlotPermMenu extends MenuHandler {
 							TownyPermission.ActionType.SWITCH
 					);
 					TownyAPI.getInstance().getDataSource().saveTownBlock(townblock);
-					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident));
+					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident, townblock));
 				})
 				.buildAndSet(player,this);
 
@@ -474,7 +478,7 @@ public class PlotPermMenu extends MenuHandler {
 							TownyPermission.ActionType.SWITCH
 					);
 					TownyAPI.getInstance().getDataSource().saveTownBlock(townblock);
-					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident));
+					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident, townblock));
 				})
 				.buildAndSet(player,this);
 
@@ -502,7 +506,7 @@ public class PlotPermMenu extends MenuHandler {
 							TownyPermission.ActionType.SWITCH
 					);
 					TownyAPI.getInstance().getDataSource().saveTownBlock(townblock);
-					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident));
+					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident, townblock));
 				})
 				.buildAndSet(player,this);
 
@@ -522,7 +526,7 @@ public class PlotPermMenu extends MenuHandler {
 					townblock.getPermissions().change(TownyPermissionChange.Action.ALL_PERMS, false
 					);
 					TownyAPI.getInstance().getDataSource().saveTownBlock(townblock);
-					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident));
+					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident, townblock));
 				})
 				.buildAndSet(player,this);
 
@@ -531,9 +535,13 @@ public class PlotPermMenu extends MenuHandler {
 				.lore("")
 				.lore(Localization.PlotMenu.PlayerPermissionsMenu.ON_LORE)
 				.onClick(click -> {
+					if (!canModifyPlot()) {
+						MessageUtils.send(player, Localization.Error.NO_PERMISSION);
+						return;
+					}
 					townblock.getPermissions().change(TownyPermissionChange.Action.ALL_PERMS, true);
 					TownyAPI.getInstance().getDataSource().saveTownBlock(townblock);
-					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident));
+					MenuManager.refreshInPlace(player, new PlotPermMenu(player, resident, townblock));
 				})
 				.buildAndSet(player,this);
 
@@ -559,25 +567,6 @@ public class PlotPermMenu extends MenuHandler {
 	}
 
 	private boolean canModifyPlot() {
-
-		if (townblock == null) {
-			return false;
-		}
-
-		Resident owner = townblock.getResidentOrNull();
-
-		// Town owned plot
-		if (owner == null) {
-			return player.hasPermission("towny.command.town.set.perm")
-					|| player.hasPermission("towny.admin");
-		}
-
-		// Player owned plot
-		if (owner.getUUID().equals(player.getUniqueId())) {
-			return true;
-		}
-
-		return player.hasPermission("towny.admin");
-	}
+        return PlotAccess.canModify(player, townblock, "towny.command.plot.set.perm");
+    }
 }
-

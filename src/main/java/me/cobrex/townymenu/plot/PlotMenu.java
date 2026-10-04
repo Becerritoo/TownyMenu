@@ -48,7 +48,7 @@ public class PlotMenu extends MenuHandler {
 		MenuItemBuilder.of("plot_permissions_menu_button")
 				.name(Localization.PlotMenu.PERMISSIONS_MENU_BUTTON)
 				.lore(Localization.PlotMenu.PERMISSIONS_MENU_BUTTON_LORE)
-				.onClick(click -> MenuManager.switchMenu(player, new PlotPermMenu(player, resident)))
+				.onClick(click -> MenuManager.switchMenu(player, new PlotPermMenu(player, resident, townBlock)))
 				.buildAndSet(player,this);
 
 		MenuItemBuilder.of("plot_admin_menu_button")

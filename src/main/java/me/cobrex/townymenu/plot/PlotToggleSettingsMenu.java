@@ -8,6 +8,8 @@ import com.palmergames.bukkit.towny.object.TownBlock;
 import me.cobrex.townymenu.config.ConfigNodes;
 import me.cobrex.townymenu.settings.Localization;
 import me.cobrex.townymenu.utils.MenuHandler;
+import me.cobrex.townymenu.utils.PlotAccess;
+import me.cobrex.townymenu.utils.MessageUtils;
 import me.cobrex.townymenu.utils.MenuItemBuilder;
 import me.cobrex.townymenu.utils.MenuManager;
 import me.cobrex.townymenu.utils.MessageFormatter;
@@ -107,6 +109,10 @@ public class PlotToggleSettingsMenu extends MenuHandler {
 	}
 
 	private void togglePerm(String type) {
+        if (!PlotAccess.canModify(player, townBlock, "towny.command.plot.toggle." + type)) {
+            MessageUtils.send(player, Localization.Error.NO_PERMISSION);
+            return;
+        }
 		switch (type.toLowerCase()) {
 			case "fire" -> townBlock.getPermissions().fire = !townBlock.getPermissions().fire;
 			case "mobs" -> townBlock.getPermissions().mobs = !townBlock.getPermissions().mobs;

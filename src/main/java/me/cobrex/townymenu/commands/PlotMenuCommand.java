@@ -2,11 +2,11 @@ package me.cobrex.townymenu.commands;
 
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Resident;
-import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownBlock;
 import me.cobrex.townymenu.plot.PlotMenu;
 import me.cobrex.townymenu.settings.Localization;
 import me.cobrex.townymenu.utils.MenuManager;
+import me.cobrex.townymenu.utils.PlotAccess;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -39,12 +39,7 @@ public class PlotMenuCommand implements CommandExecutor, TabCompleter {
 		}
 
 		try {
-			Town town = townBlock.getTown();
-			boolean isMayor = town.getMayor().equals(resident);
-			boolean isPlotOwner = townBlock.hasResident() && townBlock.isOwner(resident);
-			boolean hasAdminPermission = player.hasPermission("townymenu.admin.plot");
-
-			if (isMayor || hasAdminPermission || isPlotOwner) {
+			if (PlotAccess.canAccess(player, townBlock)) {
 				MenuManager.openMenu(player, new PlotMenu(player, townBlock));
 			} else {
 				player.sendMessage(Localization.Error.MUST_BE_IN_OWN_PLOT);

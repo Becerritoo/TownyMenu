@@ -2,10 +2,16 @@ package me.cobrex.townymenu.utils;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.*;
 import org.bukkit.entity.Player;
+import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.*;
 
 public class PlotAccessTest {
     static int tests;
+
+    @Test
+    void verifiesPlotAccessRules() throws Exception {
+        main(new String[0]);
+    }
     static void check(String name, boolean expected, boolean actual) {
         if (expected != actual) throw new AssertionError(name + ": " + actual);
         tests++; System.out.println("PASS " + name);

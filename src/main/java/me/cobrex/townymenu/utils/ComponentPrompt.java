@@ -46,12 +46,18 @@ public abstract class ComponentPrompt extends StringPrompt {
 		Player player = getPlayer(context);
 		String trimmed = input.trim();
 
-		if (trimmed.equalsIgnoreCase("cancel")) {
+		if (isCancelInput(trimmed, Localization.cancel(player))) {
 			MessageUtils.send(player, Localization.Error.CANCELLED);
 			return Prompt.END_OF_CONVERSATION;
 		}
 
 		return accept(context, input);
+	}
+
+	static boolean isCancelInput(String input, String localizedCancel) {
+		return input != null
+				&& (input.equalsIgnoreCase("cancel")
+				|| localizedCancel != null && input.equalsIgnoreCase(localizedCancel));
 	}
 
 	protected abstract Prompt accept(ConversationContext context, String input);

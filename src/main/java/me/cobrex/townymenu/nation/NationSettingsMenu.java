@@ -27,18 +27,24 @@ public class NationSettingsMenu extends MenuHandler {
 
 		this.player = player;
 		this.nation = TownyAPI.getInstance().getNation(player);
+		if (nation == null)
+			return;
 
 		MenuItemBuilder.of("nation_set_spawn_button")
 				.name(Localization.NationMenu.NationSettingsMenu.SET_SPAWN)
 				.lore(Localization.NationMenu.NationSettingsMenu.SET_SPAWN_LORE)
 				.onClick(click -> {
 					player.closeInventory();
+					if (!NationAccess.canModify(player, nation, "towny.command.nation.set.spawn")) {
+						MessageUtils.send(player, Localization.Error.NO_PERMISSION);
+						return;
+					}
 					TownBlock townBlock = TownyAPI.getInstance().getTownBlock(player.getLocation());
 					try {
-						if ((!TownySettings.isNationSpawnOnlyAllowedInCapital() && nation.hasTown(townBlock.getTown())) ||
-								(nation.hasTown(townBlock.getTown()) && townBlock.getTown().isCapital())) {
+						if (townBlock != null && ((!TownySettings.isNationSpawnOnlyAllowedInCapital() && nation.hasTown(townBlock.getTown())) ||
+								(nation.hasTown(townBlock.getTown()) && townBlock.getTown().isCapital()))) {
+							player.performCommand("nation set spawn");
 							MessageUtils.send(player, Localization.NationMenu.NationSettingsMenu.SET_SPAWN_MSG);
-							TownyAPI.getInstance().getDataSource().saveNation(nation);
 						} else {
 							MessageUtils.send(player, Localization.Error.CANNOT_SET_SPAWN);
 						}
@@ -54,7 +60,7 @@ public class NationSettingsMenu extends MenuHandler {
 				.lore(Localization.NationMenu.NationSettingsMenu.SET_NAME_LORE)
 				.onClick(click -> {
 					player.closeInventory();
-					if (nation.getKing().getName().equals(player.getName())) {
+					if (NationAccess.canModify(player, nation, "towny.command.nation.set.name")) {
 						new NationNamePrompt(player, nation).show(player);
 					} else {
 						MessageUtils.send(player, Localization.Error.CANNOT_CHANGE_NAME);
@@ -67,8 +73,8 @@ public class NationSettingsMenu extends MenuHandler {
 				.lore(Localization.NationMenu.NationSettingsMenu.SET_BOARD_LORE)
 				.onClick(click -> {
 					player.closeInventory();
-					if (nation.getKing().getName().equals(player.getName())) {
-						new NationBoardPrompt(player).show(player);
+					if (NationAccess.canModify(player, nation, "towny.command.nation.set.board")) {
+						new NationBoardPrompt(nation).show(player);
 					} else {
 						MessageUtils.send(player, Localization.Error.CANNOT_CHANGE_BOARD);
 					}

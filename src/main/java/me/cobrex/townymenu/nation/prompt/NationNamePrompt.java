@@ -6,6 +6,7 @@ import com.palmergames.bukkit.towny.object.Nation;
 import me.cobrex.townymenu.settings.Localization;
 import me.cobrex.townymenu.utils.ComponentPrompt;
 import me.cobrex.townymenu.utils.MessageUtils;
+import me.cobrex.townymenu.utils.NationAccess;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
 import org.bukkit.entity.Player;
@@ -35,7 +36,7 @@ public class NationNamePrompt extends ComponentPrompt {
 		Player player = (Player) context.getForWhom();
 		String trimmed = input.trim();
 
-		if (!player.hasPermission("towny.command.nation.set.name")) {
+		if (!NationAccess.canModify(player, nation, "towny.command.nation.set.name")) {
 			MessageUtils.send(player, Localization.Error.NO_PERMISSION);
 //			MessageUtils.send(player, MessageFormatter.format(Localization.Error.NO_PERMISSION, player));
 			return Prompt.END_OF_CONVERSATION;
@@ -46,13 +47,13 @@ public class NationNamePrompt extends ComponentPrompt {
 				.map(Nation::getName)
 				.collect(Collectors.toList());
 
-		if (trimmed.length() >= maxLength || allNationNames.contains(trimmed)) {
+		if (trimmed.length() > maxLength || allNationNames.contains(trimmed)) {
 			MessageUtils.send(player, Localization.NationConversables.Nation_Name.INVALID
 					.replace("{max_length}", String.valueOf(maxLength)));
 			return this;
 		}
 
-		sender.performCommand("nation set name " + input);
+		player.performCommand("nation set name " + trimmed);
 		MessageUtils.send(player, Localization.NationConversables.Nation_Name.RESPONSE
 				.replace("{input}", trimmed));
 		return Prompt.END_OF_CONVERSATION;

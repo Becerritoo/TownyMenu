@@ -5,6 +5,7 @@ import me.cobrex.townymenu.settings.Localization;
 import me.cobrex.townymenu.settings.Settings;
 import me.cobrex.townymenu.utils.ComponentPrompt;
 import me.cobrex.townymenu.utils.MessageUtils;
+import me.cobrex.townymenu.utils.NationAccess;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
@@ -35,7 +36,7 @@ public class NationDepositPrompt extends ComponentPrompt {
 			return this;
 		}
 
-		if (!player.hasPermission("towny.command.nation.deposit")) {
+		if (!NationAccess.canModify(player, nation, "towny.command.nation.deposit")) {
 			MessageUtils.send(player, Localization.Error.NO_PERMISSION);
 			return Prompt.END_OF_CONVERSATION;
 		}

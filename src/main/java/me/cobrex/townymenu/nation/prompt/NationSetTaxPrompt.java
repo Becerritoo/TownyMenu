@@ -6,6 +6,7 @@ import me.cobrex.townymenu.settings.Localization;
 import me.cobrex.townymenu.settings.Settings;
 import me.cobrex.townymenu.utils.ComponentPrompt;
 import me.cobrex.townymenu.utils.MessageUtils;
+import me.cobrex.townymenu.utils.NationAccess;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
 import org.bukkit.entity.Player;
@@ -33,7 +34,8 @@ public class NationSetTaxPrompt extends ComponentPrompt {
 	public Prompt accept(@NotNull ConversationContext context, @NotNull String input) {
 		Player player = (Player) context.getForWhom();
 
-		if (!player.hasPermission("towny.command.nation.set.taxes")) { // || input.equalsIgnoreCase(Localization.cancel(player))) {
+		if (!NationAccess.canModify(player, nation, "towny.command.nation.set.taxes")) {
+			MessageUtils.send(player, Localization.Error.NO_PERMISSION);
 			return END_OF_CONVERSATION;
 		}
 
@@ -65,7 +67,7 @@ public class NationSetTaxPrompt extends ComponentPrompt {
 
 		String response = nation.isTaxPercentage()
 				? Localization.NationConversables.Nation_Tax.RESPONSE_PERCENT.replace("{input}", input)
-				: Localization.TownConversables.Tax.RESPONSE_AMOUNT
+				: Localization.NationConversables.Nation_Tax.RESPONSE_AMOUNT
 				.replace("{money_symbol}", Settings.MONEY_SYMBOL)
 				.replace("{input}", input);
 

@@ -1364,7 +1364,7 @@ public class Localization {
 				String locale = (player != null && player.getLocale() != null)
 						? player.getLocale()
 						: "messages_en";
-				pushPathPrefix("Nation_Conversables.Title");
+				pushPathPrefix("Nation_Conversables.Rank");
 				PROMPT = get(player, "Prompt");
 				INVALID = get(player, "Invalid");
 				RESPONSE = get(player, "Response");

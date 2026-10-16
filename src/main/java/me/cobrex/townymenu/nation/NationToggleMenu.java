@@ -9,6 +9,8 @@ import me.cobrex.townymenu.utils.MenuHandler;
 import me.cobrex.townymenu.utils.MenuItemBuilder;
 import me.cobrex.townymenu.utils.MenuManager;
 import me.cobrex.townymenu.utils.MessageFormatter;
+import me.cobrex.townymenu.utils.MessageUtils;
+import me.cobrex.townymenu.utils.NationAccess;
 import org.bukkit.entity.Player;
 
 
@@ -26,6 +28,8 @@ public class NationToggleMenu extends MenuHandler {
 
 		this.player = player;
 		this.nation = TownyAPI.getInstance().getNation(player);
+		if (nation == null)
+			return;
 
 		fillEmptySlots("filler_nation_toggle_menu");
 
@@ -34,7 +38,7 @@ public class NationToggleMenu extends MenuHandler {
 				.lore(nation.isOpen()
 						? Localization.NationMenu.NationToggleMenu.TOGGLE_OFF
 						: Localization.NationMenu.NationToggleMenu.TOGGLE_ON)
-				.onClick(click -> toggleNationSetting("open"))
+				.onClick(click -> toggleNationSetting("open", "towny.command.nation.toggle.open"))
 				.buildAndSet(player, this);
 
 		MenuItemBuilder.of("nation_toggle_public_button")
@@ -42,7 +46,7 @@ public class NationToggleMenu extends MenuHandler {
 				.lore(nation.isPublic()
 						? Localization.NationMenu.NationToggleMenu.TOGGLE_OFF
 						: Localization.NationMenu.NationToggleMenu.TOGGLE_ON)
-				.onClick(click -> toggleNationSetting("public"))
+				.onClick(click -> toggleNationSetting("public", "towny.command.nation.toggle.public"))
 				.buildAndSet(player, this);
 
 		MenuItemBuilder.of("nation_toggle_tax_percentage_button")
@@ -50,7 +54,7 @@ public class NationToggleMenu extends MenuHandler {
 				.lore(nation.isTaxPercentage()
 						? Localization.NationMenu.NationToggleMenu.TOGGLE_OFF
 						: Localization.NationMenu.NationToggleMenu.TOGGLE_ON)
-				.onClick(click -> toggleNationSetting("tax"))
+				.onClick(click -> toggleNationSetting("taxpercent", "towny.command.nation.toggle.taxpercent"))
 				.buildAndSet(player, this);
 
 		MenuItemBuilder.of("nation_toggle_neutral_button")
@@ -58,7 +62,7 @@ public class NationToggleMenu extends MenuHandler {
 				.lore(nation.isNeutral()
 						? Localization.NationMenu.NationToggleMenu.TOGGLE_OFF
 						: Localization.NationMenu.NationToggleMenu.TOGGLE_ON)
-				.onClick(click -> toggleNationSetting("neutral"))
+				.onClick(click -> toggleNationSetting("neutral", "towny.command.nation.toggle.neutral"))
 				.buildAndSet(player, this);
 
 		MenuItemBuilder.of("nation_toggle_peaceful_button")
@@ -66,11 +70,7 @@ public class NationToggleMenu extends MenuHandler {
 				.lore(nation.isNeutral()
 						? Localization.NationMenu.NationToggleMenu.TOGGLE_OFF
 						: Localization.NationMenu.NationToggleMenu.TOGGLE_ON)
-				.onClick(click -> {
-					player.performCommand("n toggle peaceful");
-					saveNation();
-					MenuManager.refreshInPlace(player, new NationToggleMenu(player));
-				})
+				.onClick(click -> toggleNationSetting("peaceful", "towny.command.nation.toggle.neutral"))
 				.buildAndSet(player, this);
 
 		MenuItemBuilder.of("nation_toggle_menu_info_button")
@@ -91,19 +91,14 @@ public class NationToggleMenu extends MenuHandler {
 				.buildAndSet(player, this);
 	}
 
-	private void toggleNationSetting(String type) {
-		switch (type.toLowerCase()) {
-			case "open" -> nation.setOpen(!nation.isOpen());
-			case "public" -> nation.setPublic(!nation.isPublic());
-			case "tax" -> nation.setTaxPercentage(!nation.isTaxPercentage());
-			case "neutral" -> nation.setNeutral(!nation.isNeutral());
+	private void toggleNationSetting(String type, String permission) {
+		if (!NationAccess.canModify(player, nation, permission)) {
+			MessageUtils.send(player, Localization.Error.NO_PERMISSION);
+			player.closeInventory();
+			return;
 		}
 
-		saveNation();
+		player.performCommand("nation toggle " + type);
 		MenuManager.refreshInPlace(player, new NationToggleMenu(player));
-	}
-
-	private void saveNation() {
-		TownyAPI.getInstance().getDataSource().saveNation(nation);
 	}
 }

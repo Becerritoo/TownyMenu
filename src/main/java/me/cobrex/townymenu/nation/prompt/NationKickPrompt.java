@@ -1,9 +1,12 @@
 package me.cobrex.townymenu.nation.prompt;
 
 import com.palmergames.bukkit.towny.object.Town;
+import com.palmergames.bukkit.towny.object.Nation;
+import com.palmergames.bukkit.towny.TownyAPI;
 import me.cobrex.townymenu.settings.Localization;
 import me.cobrex.townymenu.utils.ComponentPrompt;
 import me.cobrex.townymenu.utils.MessageUtils;
+import me.cobrex.townymenu.utils.NationAccess;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
 import org.bukkit.entity.Player;
@@ -24,16 +27,17 @@ public class NationKickPrompt extends ComponentPrompt {
 	@Override
 	public Prompt accept(ConversationContext context, String input) {
 		Player player = (Player) context.getForWhom();
-		String lowerInput = input.toLowerCase();
+		String lowerInput = input.trim();
+		Nation nation = TownyAPI.getInstance().getNation(player);
 
-		if (!player.hasPermission("towny.command.nation.kick")) {
+		if (!NationAccess.canModify(player, nation, "towny.command.nation.kick")
+				|| nation == null || !nation.equals(town.getNationOrNull())) {
 			MessageUtils.send(player, Localization.Error.NO_PERMISSION);
 			return Prompt.END_OF_CONVERSATION;
 		}
 
-		if (lowerInput.equals(Localization.confirm(player))) {
-			town.removeNation();
-			MessageUtils.send(player, Localization.NationConversables.Nation_Kick.RESPONSE.replace("{town}", town.getName()));
+		if (lowerInput.equalsIgnoreCase(Localization.confirm(player))) {
+			player.performCommand("nation kick " + town.getName());
 		} else {
 			MessageUtils.send(player, Localization.Error.INVALID);
 //			MessageUtils.send(player, MessageFormatter.format(Localization.Error.INVALID, player));

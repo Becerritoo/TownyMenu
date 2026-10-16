@@ -1,13 +1,13 @@
 package me.cobrex.townymenu.nation.prompt;
 
-import com.palmergames.bukkit.towny.TownyAPI;
-import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
-import com.palmergames.bukkit.towny.exceptions.TownyException;
+import com.palmergames.bukkit.towny.TownySettings;
+import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
 import me.cobrex.townymenu.settings.Localization;
 import me.cobrex.townymenu.utils.ComponentPrompt;
 import me.cobrex.townymenu.utils.MessageFormatter;
 import me.cobrex.townymenu.utils.MessageUtils;
+import me.cobrex.townymenu.utils.NationAccess;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
 import org.bukkit.entity.Player;
@@ -23,7 +23,7 @@ public class NationPlayerTitlePrompt extends ComponentPrompt {
 
 	@Override
 	protected String getPromptMessage(ConversationContext context) {
-		return Localization.TownConversables.Title.PROMPT
+		return Localization.NationConversables.Nation_Title.PROMPT
 				.replace("{player}", resident.getName());
 	}
 
@@ -32,32 +32,19 @@ public class NationPlayerTitlePrompt extends ComponentPrompt {
 		Player player = getPlayer(context);
 		String trimmed = input.trim();
 
-		if (!player.hasPermission("towny.command.nation.set.title")) {
+		Nation nation = resident.getNationOrNull();
+		if (!NationAccess.canModify(player, nation, "towny.command.nation.set.title")
+				|| !NationAccess.isResidentOf(nation, resident)) {
 			MessageUtils.send(player, MessageFormatter.format(Localization.Error.NO_PERMISSION, player));
 			return Prompt.END_OF_CONVERSATION;
 		}
 
-		if (trimmed.length() >= 10) {
+		if (trimmed.length() > TownySettings.getMaxTitleLength()) {
 			MessageUtils.send(player, Localization.Error.INVALID);
 			return this;
 		}
 
-		resident.setTitle(trimmed);
-
-		try {
-			if (resident.hasNation()) {
-				TownyAPI.getInstance().getDataSource().saveNation(resident.getNation());
-			}
-			TownyAPI.getInstance().getDataSource().saveResident(resident);
-		} catch (NotRegisteredException e) {
-			e.printStackTrace();
-		} catch (TownyException e) {
-			throw new RuntimeException(e);
-		}
-
-		MessageUtils.send(player, Localization.TownConversables.Title.RESPONSE
-				.replace("{player}", resident.getName())
-				.replace("{input}", trimmed));
+		player.performCommand("nation set title " + resident.getName() + " " + trimmed);
 
 		return Prompt.END_OF_CONVERSATION;
 	}

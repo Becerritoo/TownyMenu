@@ -1,18 +1,20 @@
 package me.cobrex.townymenu.nation.prompt;
 
+import com.palmergames.bukkit.towny.object.Nation;
 import me.cobrex.townymenu.settings.Localization;
 import me.cobrex.townymenu.utils.ComponentPrompt;
 import me.cobrex.townymenu.utils.MessageUtils;
+import me.cobrex.townymenu.utils.NationAccess;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
 import org.bukkit.entity.Player;
 
 public class NationBoardPrompt extends ComponentPrompt {
 
-	private final Player player;
+	private final Nation nation;
 
-	public NationBoardPrompt(Player player) {
-		this.player = player;
+	public NationBoardPrompt(Nation nation) {
+		this.nation = nation;
 	}
 
 	@Override
@@ -25,7 +27,7 @@ public class NationBoardPrompt extends ComponentPrompt {
 		Player player = (Player) context.getForWhom();
 		String trimmed = input.trim();
 
-		if (!player.hasPermission("towny.command.nation.set.board")) {
+		if (!NationAccess.canModify(player, nation, "towny.command.nation.set.board")) {
 			MessageUtils.send(player, Localization.Error.NO_PERMISSION);
 			return Prompt.END_OF_CONVERSATION;
 		}

@@ -1,6 +1,8 @@
 package me.cobrex.townymenu.nation;
 
 import com.palmergames.bukkit.towny.TownyUniverse;
+import com.palmergames.bukkit.towny.TownyAPI;
+import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
 import com.palmergames.bukkit.towny.object.Town;
 import me.cobrex.townymenu.settings.Localization;
@@ -27,6 +29,7 @@ public class InviteTownMenu extends PaginatedMenu {
 	}
 
 	private static List<MenuItem> buildTownItems(Player player) {
+		Nation nation = TownyAPI.getInstance().getNation(player);
 		return TownyUniverse.getInstance().getTowns().stream()
 				.filter(town -> !town.hasNation())
 				.sorted(Comparator.comparing(Town::getName))
@@ -47,6 +50,10 @@ public class InviteTownMenu extends PaginatedMenu {
 					}
 					return new MenuItem(skull, click -> {
 						player.closeInventory();
+						if (!NationAccess.canModify(player, nation, "towny.command.nation.invite.add")) {
+							MessageUtils.send(player, Localization.Error.NO_PERMISSION);
+							return;
+						}
 						player.performCommand("n invite " + town.getName());
 					});
 				})

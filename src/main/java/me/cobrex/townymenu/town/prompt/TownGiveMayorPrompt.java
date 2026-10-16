@@ -1,11 +1,11 @@
 package me.cobrex.townymenu.town.prompt;
 
-import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
 import me.cobrex.townymenu.settings.Localization;
 import me.cobrex.townymenu.utils.ComponentPrompt;
 import me.cobrex.townymenu.utils.MessageUtils;
+import me.cobrex.townymenu.utils.TownAccess;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
 import org.bukkit.entity.Player;
@@ -28,26 +28,19 @@ public class TownGiveMayorPrompt extends ComponentPrompt {
 	public Prompt accept(@NotNull ConversationContext context, String input) {
 		Player player = (Player) context.getForWhom();
 
-		if (!player.hasPermission("towny.command.town.set.mayor")) {
+		Town town = resident.getTownOrNull();
+		if (!TownAccess.canModify(player, town, "towny.command.town.set.mayor")) {
 			MessageUtils.send(player, Localization.Error.NO_PERMISSION);
 			return Prompt.END_OF_CONVERSATION;
 		}
 
-		if (input.equals(Localization.confirm(player))) {
-			Town town = resident.getTownOrNull();
-
+		if (input.trim().equalsIgnoreCase(Localization.confirm(player))) {
 			if (town == null) {
 				MessageUtils.send(player, Localization.Error.NO_TOWN);
 				return Prompt.END_OF_CONVERSATION;
 			}
 
-			town.setMayor(resident);
-
-			MessageUtils.send(player, Localization.TownConversables.Mayor.RESPONSE
-					.replace("{player}", resident.getName()));
-
-			TownyAPI.getInstance().getDataSource().saveTown(town);
-			TownyAPI.getInstance().getDataSource().saveResident(resident);
+			player.performCommand("town set mayor " + resident.getName());
 		} else {
 			MessageUtils.send(player, Localization.Error.INVALID);
 			return this;

@@ -1,16 +1,18 @@
 package me.cobrex.townymenu.town.prompt;
 
-import com.palmergames.bukkit.towny.TownyAPI;
-import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
 import com.palmergames.bukkit.towny.object.Resident;
+import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.permissions.TownyPerms;
 import me.cobrex.townymenu.settings.Localization;
 import me.cobrex.townymenu.utils.ComponentPrompt;
 import me.cobrex.townymenu.utils.MessageUtils;
+import me.cobrex.townymenu.utils.TownAccess;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Locale;
 
 public class TownRankPrompt extends ComponentPrompt {
 
@@ -25,56 +27,57 @@ public class TownRankPrompt extends ComponentPrompt {
 		String ranks = String.join(", ", TownyPerms.getTownRanks());
 		return Localization.TownConversables.Rank.PROMPT
 				.replace("{player}", resident.getName())
-				.replace("{ranks}", ranks);
+				.replace("{ranks}", ranks)
+				.replace("{current}", TownAccess.getDisplayTownRanks(resident));
 	}
 
 	@Override
 	public Prompt accept(@NotNull ConversationContext context, String input) {
 		Player player = (Player) context.getForWhom();
 
-		if (!player.hasPermission("towny.command.town.rank"))
-			return END_OF_CONVERSATION;
+		String trimmed = input.trim();
+		String removeWord = Localization.TownConversables.Rank.REMOVE.trim();
+		boolean removing = startsWithWord(trimmed, removeWord) || startsWithWord(trimmed, "remove");
+		String requestedRank = removing ? trimmed.substring(trimmed.indexOf(' ') + 1).trim() : trimmed;
+		String rank = matchRank(requestedRank);
 
-		input = input.trim();
-
-		if (input.equalsIgnoreCase(Localization.TownConversables.Rank.REMOVE)) {
-			for (String rank : TownyPerms.getTownRanks()) {
-				if (resident.hasTownRank(rank))
-					resident.removeTownRank(rank);
-			}
-			MessageUtils.send(player, Localization.TownConversables.Rank.REMOVED_ALL.replace("{player}", resident.getName()));
-		}
-
-		else if (isValidRank(input)) {
-			if (resident.hasTownRank(input)) {
-				MessageUtils.send(player, Localization.TownConversables.Rank.ALREADY_HAS_RANK
-						.replace("{player}", resident.getName())
-						.replace("{input}", input));
-				return this;
-			}
-
-			resident.addTownRank(input);
-			MessageUtils.send(player, Localization.TownConversables.Rank.RESPONSE
-					.replace("{player}", resident.getName())
-					.replace("{input}", input));
-		}
-		else {
+		if (rank == null) {
 			String ranks = String.join(", ", TownyPerms.getTownRanks());
 			MessageUtils.send(player, Localization.TownConversables.Rank.INVALID.replace("{ranks}", ranks));
 			return this;
 		}
 
-		try {
-			TownyAPI.getInstance().getDataSource().saveTown(resident.getTown());
-		} catch (NotRegisteredException e) {
-			throw new RuntimeException(e);
+		Town town = resident.getTownOrNull();
+		String permission = "towny.command.town.rank." + rank.toLowerCase(Locale.ROOT);
+		if (!TownAccess.canModify(player, town, permission) || !TownAccess.isResidentOf(town, resident)) {
+			MessageUtils.send(player, Localization.Error.NO_PERMISSION);
+			return END_OF_CONVERSATION;
 		}
-		TownyAPI.getInstance().getDataSource().saveResident(resident);
+
+		if (!removing && resident.hasTownRank(rank)) {
+				MessageUtils.send(player, Localization.TownConversables.Rank.ALREADY_HAS_RANK
+						.replace("{player}", resident.getName())
+						.replace("{input}", rank));
+				return this;
+		}
+		if (removing && !resident.hasTownRank(rank)) {
+			MessageUtils.send(player, Localization.TownConversables.Rank.INVALID
+					.replace("{ranks}", String.join(", ", TownyPerms.getTownRanks())));
+			return this;
+		}
+
+		player.performCommand("town rank " + (removing ? "remove " : "add ") + resident.getName() + " " + rank);
 		return END_OF_CONVERSATION;
 	}
 
-	private boolean isValidRank(String input) {
+	private static boolean startsWithWord(String input, String word) {
+		return !word.isEmpty() && input.regionMatches(true, 0, word + " ", 0, word.length() + 1);
+	}
+
+	private static String matchRank(String input) {
 		return TownyPerms.getTownRanks().stream()
-				.anyMatch(rank -> rank.equalsIgnoreCase(input));
+				.filter(rank -> rank.equalsIgnoreCase(input))
+				.findFirst()
+				.orElse(null);
 	}
 }

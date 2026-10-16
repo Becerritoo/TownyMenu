@@ -114,7 +114,7 @@ public class ToggleSettingsMenu extends MenuHandler {
 	}
 
 	private void toggleTownSetting(String type, String permission) {
-		if (!player.hasPermission(permission)) {
+		if (!TownAccess.canModify(player, town, permission)) {
 			MessageUtils.send(player, Localization.Error.NO_PERMISSION);
 //			MessageFormatter.format(Localization.Error.NO_PERMISSION, player);
 			return;
@@ -134,7 +134,7 @@ public class ToggleSettingsMenu extends MenuHandler {
 	}
 
 	private void togglePVP() {
-		if (!player.hasPermission("towny.command.town.toggle.pvp")) {
+		if (!TownAccess.canModify(player, town, "towny.command.town.toggle.pvp")) {
 			MessageUtils.send(player, Localization.Error.NO_PERMISSION);
 //			MessageFormatter.format(Localization.Error.NO_PERMISSION, player);
 			return;

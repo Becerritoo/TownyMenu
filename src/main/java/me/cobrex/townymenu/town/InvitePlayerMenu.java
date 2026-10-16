@@ -9,6 +9,8 @@ import me.cobrex.townymenu.utils.MenuItem;
 import me.cobrex.townymenu.utils.MenuManager;
 import me.cobrex.townymenu.utils.MessageFormatter;
 import me.cobrex.townymenu.utils.PaginatedMenu;
+import me.cobrex.townymenu.utils.MessageUtils;
+import me.cobrex.townymenu.utils.TownAccess;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -63,6 +65,11 @@ public class InvitePlayerMenu extends PaginatedMenu {
 					}
 
 					return new MenuItem(skull, click -> {
+						Town town = TownyAPI.getInstance().getTown(player);
+						if (!TownAccess.canModify(player, town, "towny.command.town.invite.add")) {
+							MessageUtils.send(player, Localization.Error.NO_PERMISSION);
+							return;
+						}
 						player.closeInventory();
 						player.performCommand("t invite " + res.getName());
 					});

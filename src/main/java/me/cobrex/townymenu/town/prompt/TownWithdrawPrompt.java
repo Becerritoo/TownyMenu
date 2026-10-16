@@ -5,6 +5,7 @@ import me.cobrex.townymenu.settings.Localization;
 import me.cobrex.townymenu.settings.Settings;
 import me.cobrex.townymenu.utils.ComponentPrompt;
 import me.cobrex.townymenu.utils.MessageUtils;
+import me.cobrex.townymenu.utils.TownAccess;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
 import org.bukkit.entity.Player;
@@ -30,7 +31,8 @@ public class TownWithdrawPrompt extends ComponentPrompt {
 
 		input = input.trim();
 
-		if (!player.hasPermission("towny.command.town.withdraw")) {
+		if (!TownAccess.canModify(player, town, "towny.command.town.withdraw")) {
+			MessageUtils.send(player, Localization.Error.NO_PERMISSION);
 			return Prompt.END_OF_CONVERSATION;
 		}
 
@@ -50,7 +52,7 @@ public class TownWithdrawPrompt extends ComponentPrompt {
 	private boolean isValidAmount(String input) {
 		try {
 			int amount = Integer.parseInt(input);
-			return town.getAccount().canPayFromHoldings(amount);
+			return amount > 0 && town.getAccount().canPayFromHoldings(amount);
 		} catch (NumberFormatException e) {
 			return false;
 		}

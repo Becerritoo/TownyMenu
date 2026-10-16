@@ -8,6 +8,7 @@ import me.cobrex.townymenu.settings.Localization;
 import me.cobrex.townymenu.utils.ComponentPrompt;
 import me.cobrex.townymenu.utils.MessageFormatter;
 import me.cobrex.townymenu.utils.MessageUtils;
+import me.cobrex.townymenu.utils.TownAccess;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
 import org.bukkit.entity.Player;
@@ -15,8 +16,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
-;
 
 public class TownNamePrompt extends ComponentPrompt {
 
@@ -38,7 +37,7 @@ public class TownNamePrompt extends ComponentPrompt {
 		Player player = (Player) context.getForWhom();
 		String trimmed = input.trim();
 
-		if (!player.hasPermission("towny.command.town.set.name")) {
+		if (!TownAccess.canModify(player, town, "towny.command.town.set.name")) {
 			MessageUtils.send(player, MessageFormatter.format(Localization.Error.NO_PERMISSION, player));
 			return Prompt.END_OF_CONVERSATION;
 		}
@@ -48,7 +47,7 @@ public class TownNamePrompt extends ComponentPrompt {
 				.map(Town::getName)
 				.collect(Collectors.toList());
 
-		if (trimmed.length() >= maxLength || allTownNames.contains(trimmed)) {
+		if (trimmed.length() > maxLength || allTownNames.contains(trimmed)) {
 			MessageUtils.send(player, Localization.TownConversables.Name.INVALID
 					.replace("{max_length}", String.valueOf(maxLength)));
 			return this;

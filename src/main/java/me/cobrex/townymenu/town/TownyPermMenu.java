@@ -18,7 +18,7 @@ public class TownyPermMenu extends MenuHandler {
 	private final Player player;
 	private final Resident resident;
 	private final Town town;
-	private final TownyPermission permData;
+	private static final String MODIFY_PERMISSION = "towny.command.town.set.perm";
 
 	public TownyPermMenu(Player player, Resident resident) {
 		super(
@@ -29,24 +29,12 @@ public class TownyPermMenu extends MenuHandler {
 		this.player = player;
 		this.resident = resident;
 		this.town = resident.getTownOrNull();
-		this.permData = town.getPermissions();
 
 		setupMenu();
 	}
 
 	private boolean canModifyTownPerms() {
-		Resident freshResident = TownyAPI.getInstance().getResident(player.getName());
-		if (freshResident == null || !freshResident.hasTown())
-			return false;
-
-		Town freshTown;
-		try {
-			freshTown = freshResident.getTown();
-		} catch (NotRegisteredException e) {
-			return false;
-		}
-
-		return freshTown.getMayor().equals(freshResident);
+		return TownAccess.canModify(player, town, MODIFY_PERMISSION);
 	}
 
 	private void setupMenu() {
@@ -92,7 +80,7 @@ public class TownyPermMenu extends MenuHandler {
 								: Localization.TownMenu.PlayerPermissionsMenu.FALSE_MSG,
 						"",
 						Localization.TownMenu.PlayerPermissionsMenu.CHANGE))
-				.onClick(click -> executeIfMayor(() -> {
+				.onClick(click -> executeIfAuthorized(() -> {
 					town.getPermissions().change(TownyPermissionChange.Action.SINGLE_PERM,
 							!town.getPermissions().getResidentPerm(TownyPermission.ActionType.BUILD),
 							TownyPermission.PermLevel.RESIDENT,
@@ -113,7 +101,7 @@ public class TownyPermMenu extends MenuHandler {
 								: Localization.TownMenu.PlayerPermissionsMenu.FALSE_MSG,
 						"",
 						Localization.TownMenu.PlayerPermissionsMenu.CHANGE))
-				.onClick(click -> executeIfMayor(() -> {
+				.onClick(click -> executeIfAuthorized(() -> {
 					town.getPermissions().change(TownyPermissionChange.Action.SINGLE_PERM,
 							!town.getPermissions().getAllyPerm(TownyPermission.ActionType.BUILD),
 							TownyPermission.PermLevel.ALLY,
@@ -133,7 +121,7 @@ public class TownyPermMenu extends MenuHandler {
 								: Localization.TownMenu.PlayerPermissionsMenu.FALSE_MSG,
 						"",
 						Localization.TownMenu.PlayerPermissionsMenu.CHANGE))
-				.onClick(click -> executeIfMayor(() -> {
+				.onClick(click -> executeIfAuthorized(() -> {
 					town.getPermissions().change(TownyPermissionChange.Action.SINGLE_PERM,
 							!town.getPermissions().getNationPerm(TownyPermission.ActionType.BUILD),
 							TownyPermission.PermLevel.NATION,
@@ -153,7 +141,7 @@ public class TownyPermMenu extends MenuHandler {
 								: Localization.TownMenu.PlayerPermissionsMenu.FALSE_MSG,
 						"",
 						Localization.TownMenu.PlayerPermissionsMenu.CHANGE))
-				.onClick(click -> executeIfMayor(() -> {
+				.onClick(click -> executeIfAuthorized(() -> {
 					town.getPermissions().change(TownyPermissionChange.Action.SINGLE_PERM,
 							!town.getPermissions().getOutsiderPerm(TownyPermission.ActionType.BUILD),
 							TownyPermission.PermLevel.OUTSIDER,
@@ -175,7 +163,7 @@ public class TownyPermMenu extends MenuHandler {
 								: Localization.TownMenu.PlayerPermissionsMenu.FALSE_MSG,
 						"",
 						Localization.TownMenu.PlayerPermissionsMenu.CHANGE))
-				.onClick(click -> executeIfMayor(() -> {
+				.onClick(click -> executeIfAuthorized(() -> {
 					town.getPermissions().change(TownyPermissionChange.Action.SINGLE_PERM,
 							!town.getPermissions().getResidentPerm(TownyPermission.ActionType.DESTROY),
 							TownyPermission.PermLevel.RESIDENT,
@@ -195,7 +183,7 @@ public class TownyPermMenu extends MenuHandler {
 								: Localization.TownMenu.PlayerPermissionsMenu.FALSE_MSG,
 						"",
 						Localization.TownMenu.PlayerPermissionsMenu.CHANGE))
-				.onClick(click -> executeIfMayor(() -> {
+				.onClick(click -> executeIfAuthorized(() -> {
 					town.getPermissions().change(TownyPermissionChange.Action.SINGLE_PERM,
 							!town.getPermissions().getNationPerm(TownyPermission.ActionType.DESTROY),
 							TownyPermission.PermLevel.NATION,
@@ -215,7 +203,7 @@ public class TownyPermMenu extends MenuHandler {
 								: Localization.TownMenu.PlayerPermissionsMenu.FALSE_MSG,
 						"",
 						Localization.TownMenu.PlayerPermissionsMenu.CHANGE))
-				.onClick(click -> executeIfMayor(() -> {
+				.onClick(click -> executeIfAuthorized(() -> {
 					town.getPermissions().change(TownyPermissionChange.Action.SINGLE_PERM,
 							!town.getPermissions().getAllyPerm(TownyPermission.ActionType.DESTROY),
 							TownyPermission.PermLevel.ALLY,
@@ -235,7 +223,7 @@ public class TownyPermMenu extends MenuHandler {
 								: Localization.TownMenu.PlayerPermissionsMenu.FALSE_MSG,
 						"",
 						Localization.TownMenu.PlayerPermissionsMenu.CHANGE))
-				.onClick(click -> executeIfMayor(() -> {
+				.onClick(click -> executeIfAuthorized(() -> {
 					town.getPermissions().change(TownyPermissionChange.Action.SINGLE_PERM,
 							!town.getPermissions().getOutsiderPerm(TownyPermission.ActionType.DESTROY),
 							TownyPermission.PermLevel.OUTSIDER,
@@ -257,7 +245,7 @@ public class TownyPermMenu extends MenuHandler {
 								: Localization.TownMenu.PlayerPermissionsMenu.FALSE_MSG,
 						"",
 						Localization.TownMenu.PlayerPermissionsMenu.CHANGE))
-				.onClick(click -> executeIfMayor(() -> {
+				.onClick(click -> executeIfAuthorized(() -> {
 					town.getPermissions().change(
 							TownyPermissionChange.Action.SINGLE_PERM,
 							!town.getPermissions().getResidentPerm(TownyPermission.ActionType.ITEM_USE),
@@ -279,7 +267,7 @@ public class TownyPermMenu extends MenuHandler {
 								: Localization.TownMenu.PlayerPermissionsMenu.FALSE_MSG,
 						"",
 						Localization.TownMenu.PlayerPermissionsMenu.CHANGE))
-				.onClick(click -> executeIfMayor(() -> {
+				.onClick(click -> executeIfAuthorized(() -> {
 					town.getPermissions().change(
 							TownyPermissionChange.Action.SINGLE_PERM,
 							!town.getPermissions().getNationPerm(TownyPermission.ActionType.ITEM_USE),
@@ -301,7 +289,7 @@ public class TownyPermMenu extends MenuHandler {
 								: Localization.TownMenu.PlayerPermissionsMenu.FALSE_MSG,
 						"",
 						Localization.TownMenu.PlayerPermissionsMenu.CHANGE))
-				.onClick(click -> executeIfMayor(() -> {
+				.onClick(click -> executeIfAuthorized(() -> {
 					town.getPermissions().change(
 							TownyPermissionChange.Action.SINGLE_PERM,
 							!town.getPermissions().getAllyPerm(TownyPermission.ActionType.ITEM_USE),
@@ -323,7 +311,7 @@ public class TownyPermMenu extends MenuHandler {
 								: Localization.TownMenu.PlayerPermissionsMenu.FALSE_MSG,
 						"",
 						Localization.TownMenu.PlayerPermissionsMenu.CHANGE))
-				.onClick(click -> executeIfMayor(() -> {
+				.onClick(click -> executeIfAuthorized(() -> {
 					town.getPermissions().change(
 							TownyPermissionChange.Action.SINGLE_PERM,
 							!town.getPermissions().getOutsiderPerm(TownyPermission.ActionType.ITEM_USE),
@@ -347,7 +335,7 @@ public class TownyPermMenu extends MenuHandler {
 								: Localization.TownMenu.PlayerPermissionsMenu.FALSE_MSG,
 						"",
 						Localization.TownMenu.PlayerPermissionsMenu.CHANGE))
-				.onClick(click -> executeIfMayor(() -> {
+				.onClick(click -> executeIfAuthorized(() -> {
 					town.getPermissions().change(
 							TownyPermissionChange.Action.SINGLE_PERM,
 							!town.getPermissions().getResidentPerm(TownyPermission.ActionType.SWITCH),
@@ -369,7 +357,7 @@ public class TownyPermMenu extends MenuHandler {
 								: Localization.TownMenu.PlayerPermissionsMenu.FALSE_MSG,
 						"",
 						Localization.TownMenu.PlayerPermissionsMenu.CHANGE))
-				.onClick(click -> executeIfMayor(() -> {
+				.onClick(click -> executeIfAuthorized(() -> {
 					town.getPermissions().change(
 							TownyPermissionChange.Action.SINGLE_PERM,
 							!town.getPermissions().getNationPerm(TownyPermission.ActionType.SWITCH),
@@ -391,7 +379,7 @@ public class TownyPermMenu extends MenuHandler {
 								: Localization.TownMenu.PlayerPermissionsMenu.FALSE_MSG,
 						"",
 						Localization.TownMenu.PlayerPermissionsMenu.CHANGE))
-				.onClick(click -> executeIfMayor(() -> {
+				.onClick(click -> executeIfAuthorized(() -> {
 					town.getPermissions().change(
 							TownyPermissionChange.Action.SINGLE_PERM,
 							!town.getPermissions().getAllyPerm(TownyPermission.ActionType.SWITCH),
@@ -413,7 +401,7 @@ public class TownyPermMenu extends MenuHandler {
 								: Localization.TownMenu.PlayerPermissionsMenu.FALSE_MSG,
 						"",
 						Localization.TownMenu.PlayerPermissionsMenu.CHANGE))
-				.onClick(click -> executeIfMayor(() -> {
+				.onClick(click -> executeIfAuthorized(() -> {
 					town.getPermissions().change(
 							TownyPermissionChange.Action.SINGLE_PERM,
 							!town.getPermissions().getOutsiderPerm(TownyPermission.ActionType.SWITCH),
@@ -431,19 +419,19 @@ public class TownyPermMenu extends MenuHandler {
 				.name(Localization.TownMenu.PlayerPermissionsMenu.RESET)
 				.lore("")
 				.lore(Localization.TownMenu.PlayerPermissionsMenu.RESET_LORE)
-				.onClick(click -> {
+				.onClick(click -> executeIfAuthorized(() -> {
 					town.getPermissions().change(TownyPermissionChange.Action.ALL_PERMS, false
 					);
 					TownyAPI.getInstance().getDataSource().saveTown(town);
 					MenuManager.refreshInPlace(player, new TownyPermMenu(player, resident));
-				})
+				}))
 				.buildAndSet(player,this);
 
 		MenuItemBuilder.of("all_on_button")
 				.name(Localization.TownMenu.PlayerPermissionsMenu.ON)
 				.lore("")
 				.lore(Localization.TownMenu.PlayerPermissionsMenu.ON_LORE)
-				.onClick(click -> executeIfMayor(() -> {
+				.onClick(click -> executeIfAuthorized(() -> {
 					town.getPermissions().change(TownyPermissionChange.Action.ALL_PERMS, true);
 					TownyAPI.getInstance().getDataSource().saveTown(town);
 					MenuManager.refreshInPlace(player, new TownyPermMenu(player, resident));
@@ -454,7 +442,7 @@ public class TownyPermMenu extends MenuHandler {
 				.name(Localization.TownMenu.PlayerPermissionsMenu.RESET_TO_TOWN_PERM)
 				.lore("")
 				.lore(Localization.TownMenu.PlayerPermissionsMenu.RESET_TO_TOWN_PERM_LORE)
-				.onClick(click -> executeIfMayor(() -> {
+				.onClick(click -> executeIfAuthorized(() -> {
 					player.closeInventory();
 					player.performCommand("t set perm reset");
 					MenuManager.refreshInPlace(player, new TownyPermMenu(player, resident));
@@ -483,7 +471,7 @@ public class TownyPermMenu extends MenuHandler {
 		fillEmptySlots("filler_town_perms_menu");
 	}
 
-	private void executeIfMayor(Runnable action) {
+	private void executeIfAuthorized(Runnable action) {
 		if (!canModifyTownPerms()) {
 			MessageUtils.send(player, Localization.Error.NO_PERMISSION);
 			player.closeInventory();

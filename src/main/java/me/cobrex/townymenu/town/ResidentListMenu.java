@@ -3,6 +3,7 @@ package me.cobrex.townymenu.town;
 import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
+import com.palmergames.bukkit.towny.permissions.TownyPerms;
 import me.cobrex.townymenu.config.ConfigNodes;
 import me.cobrex.townymenu.settings.Localization;
 import me.cobrex.townymenu.settings.Settings;
@@ -19,7 +20,9 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 
 public class ResidentListMenu extends PaginatedMenu {
@@ -61,14 +64,26 @@ public class ResidentListMenu extends PaginatedMenu {
 						meta.setOwnerProfile(Bukkit.createPlayerProfile(resident.getUUID(), resident.getName()));
 
 						meta.setDisplayName(LegacyComponentSerializer.legacySection().serialize(MessageFormatter.formatComponent(
-								Localization.TownMenu.ResidentMenu.RESIDENT_NAME.replace("{player}", resident.getFormattedName()), player
+								Localization.TownMenu.ResidentMenu.RESIDENT_NAME.replace("{player}", resident.getFormattedTitleName()), player
 						)));
 
 						List<Component> lore = new ArrayList<>();
 						lore.add(Component.empty());
 						lore.add(parseFormatted(MessageFormatter.format(
-								Localization.TownMenu.ResidentMenu.TOWN_RANK.replace("{rank}", resident.getNamePrefix()), player
+								Localization.TownMenu.ResidentMenu.TOWN_RANK.replace("{rank}", TownAccess.getDisplayTownRanks(resident)), player
 						)));
+						Set<String> rankPermissions = new LinkedHashSet<>();
+						for (String rank : resident.getTownRanks())
+							rankPermissions.addAll(TownyPerms.getTownRankPermissions(rank));
+						if (!rankPermissions.isEmpty()) {
+							lore.add(parseFormatted(MessageFormatter.format(
+									Localization.get(player, "Resident_Menu.Rank_Permissions"), player)));
+							for (String permission : rankPermissions) {
+								lore.add(parseFormatted(MessageFormatter.format(
+										Localization.get(player, "Resident_Menu.Rank_Permission")
+												.replace("{permission}", permission), player)));
+							}
+						}
 //						Bukkit.getLogger().info("[ResidentListMenu] Lore1 (raw): " + lore);
 //						Bukkit.getLogger().info("[ResidentListMenu] Color mode: " + MessageFormatter.COLOR_MODE);
 						lore.add(Component.empty());

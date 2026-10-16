@@ -4,6 +4,7 @@ import com.palmergames.bukkit.towny.object.Town;
 import me.cobrex.townymenu.settings.Localization;
 import me.cobrex.townymenu.utils.ComponentPrompt;
 import me.cobrex.townymenu.utils.MessageUtils;
+import me.cobrex.townymenu.utils.TownAccess;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
 import org.bukkit.entity.Player;
@@ -30,7 +31,7 @@ public class TownBoardPrompt extends ComponentPrompt {
 		Player player = (Player) context.getForWhom();
 		String trimmed = input.trim();
 
-		if (!player.hasPermission("towny.command.town.set.board")) {
+		if (!TownAccess.canModify(player, town, "towny.command.town.set.board")) {
 			MessageUtils.send(player, Localization.Error.NO_PERMISSION);
 			return Prompt.END_OF_CONVERSATION;
 		}

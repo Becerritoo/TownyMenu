@@ -30,7 +30,7 @@ public class GeneralSettingsMenu extends MenuHandler {
 				.lore(Localization.TownMenu.GeneralSettingsMenu.SET_HOME_BLOCK_LORE)
 				.onClick(click -> {
 
-					if (!player.hasPermission("towny.command.town.set.homeblock")) {
+					if (!TownAccess.canModify(player, town, "towny.command.town.set.homeblock")) {
 						MessageUtils.send(player, Localization.Error.NO_PERMISSION);
 						player.closeInventory();
 						return;
@@ -38,7 +38,7 @@ public class GeneralSettingsMenu extends MenuHandler {
 
 					TownBlock townBlock = TownyAPI.getInstance().getTownBlock(player.getLocation());
 					try {
-						if (townBlock != null && townBlock.getTown().equals(town) && town.getMayor().getName().equals(player.getName())) {
+						if (townBlock != null && townBlock.getTown().equals(town)) {
 							player.performCommand("town set homeblock");
 //							town.setHomeBlock(townBlock);
 //							TownyAPI.getInstance().getDataSource().saveTown(town);
@@ -63,16 +63,15 @@ public class GeneralSettingsMenu extends MenuHandler {
 				.onClick(click -> {
 					player.closeInventory();
 
-					if (!player.hasPermission("towny.command.town.set.spawn")) {
+					if (!TownAccess.canModify(player, town, "towny.command.town.set.spawn")) {
 						MessageUtils.send(player, Localization.Error.NO_PERMISSION);
 						return;
 					}
 
 					TownBlock townBlock = TownyAPI.getInstance().getTownBlock(player.getLocation());
 					try {
-						if (townBlock.isHomeBlock() && townBlock.getTown().equals(town)) {
-							town.setSpawn(player.getLocation());
-							TownyAPI.getInstance().getDataSource().saveTown(town);
+						if (townBlock != null && townBlock.isHomeBlock() && townBlock.getTown().equals(town)) {
+							player.performCommand("town set spawn");
 							MessageUtils.send(player, Localization.TownMenu.GeneralSettingsMenu.SET_SPAWN_MSG);
 						} else {
 							MessageUtils.send(player, Localization.Error.CANNOT_SET_SPAWN);
@@ -88,7 +87,7 @@ public class GeneralSettingsMenu extends MenuHandler {
 				.lore(Localization.TownMenu.GeneralSettingsMenu.SET_NAME_LORE)
 				.onClick(click -> {
 					player.closeInventory();
-					if (town.getMayor().getName().equals(player.getName())) {
+					if (TownAccess.canModify(player, town, "towny.command.town.set.name")) {
 						new TownNamePrompt(town).show(player);
 					} else {
 						MessageUtils.send(player, Localization.Error.CANNOT_CHANGE_NAME);
@@ -102,7 +101,7 @@ public class GeneralSettingsMenu extends MenuHandler {
 				.onClick(click -> {
 //					System.out.println("[DEBUG] Town board button clicked by " + player.getName());
 					player.closeInventory();
-					if (town.getMayor().getName().equals(player.getName())) {
+					if (TownAccess.canModify(player, town, "towny.command.town.set.board")) {
 						new TownBoardPrompt(player, town).show(player);
 					} else {
 						MessageUtils.send(player, Localization.Error.CANNOT_CHANGE_BOARD);

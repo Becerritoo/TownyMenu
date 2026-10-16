@@ -46,11 +46,7 @@ public class TownMenuCommand implements CommandExecutor, TabCompleter {
 				} catch (NotRegisteredException e) {
 					throw new RuntimeException(e);
 				}
-				boolean isMayor = town.getMayor().equals(resident);
-				boolean hasPermission = player.hasPermission("townymenu.town.use");
-				boolean mayorHasNode = isMayor && town.getMayor().hasPermissionNode("townymenu.town.use");
-
-				if (mayorHasNode || hasPermission) {
+				if (player.hasPermission("townymenu.town.use")) {
 					try {
 						MenuManager.openMenu(player, new TownMenu(player, town));
 					} catch (NotRegisteredException e) {
